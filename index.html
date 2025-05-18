@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Einkaufsliste mit getrennten Kategorien</title>
+  <title>Einkaufsliste mit PDF-Export</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,7 +60,7 @@
   </style>
 </head>
 <body>
-  <h1>🛒 Einkaufsliste mit getrennten Kategorien</h1>
+  <h1>🛒 Einkaufsliste mit PDF-Export</h1>
 
   <div class="section">
     <h2>➕ Neues Gericht</h2>
@@ -82,6 +83,7 @@
     <input type="text" id="artikelKategorie" placeholder="Neue Kategorie für Artikel (optional)">
     <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
   </div>
+
   <div class="section">
     <h2>✅ Gerichte auswählen</h2>
     <ul id="gerichteListe"></ul>
@@ -110,6 +112,11 @@
   <div class="section">
     <h2>🧹 Daten zurücksetzen</h2>
     <button onclick="localStorageLoeschen()" style="background: #dc3545;">Alles löschen & zurücksetzen</button>
+  </div>
+
+  <div class="section">
+    <h2>📥 Einkaufsliste exportieren</h2>
+    <button onclick="einkaufslisteAlsPDF()">🧾 Einkaufsliste als PDF speichern</button>
   </div>
 
   <script>
@@ -273,27 +280,36 @@
     }
 
     function gerichtEntfernen(index) {
-      if (confirm('Gericht wirklich löschen?')) {
-        gerichte.splice(index, 1);
-        speichernUndAktualisieren();
-      }
+      gerichte.splice(index, 1);
+      speichernUndAktualisieren();
     }
 
     function artikelEntfernen(index) {
-      if (confirm('Artikel wirklich löschen?')) {
-        artikel.splice(index, 1);
-        speichernUndAktualisieren();
-      }
+      artikel.splice(index, 1);
+      speichernUndAktualisieren();
     }
 
     function localStorageLoeschen() {
-      if (confirm('Möchtest du wirklich alle Daten löschen?')) {
-        localStorage.clear();
-        location.reload();
-      }
+      localStorage.clear();
+      gerichte = [];
+      artikel = [];
+      kategorien = { gerichte: [], artikel: [] };
+      speichernUndAktualisieren();
     }
 
-    // Initialisierung
+    function einkaufslisteAlsPDF() {
+      const element = document.getElementById('einkaufsliste');
+      const opt = {
+        margin: 0.5,
+        filename: 'einkaufsliste.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Initiales Anzeigen
     anzeigenGerichte();
     anzeigenArtikel();
     anzeigenKategorien();
