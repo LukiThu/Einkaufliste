@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Einkaufsliste mit PDF-Export</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <title>Einkaufsliste mit Druckfunktion</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -60,7 +59,7 @@
   </style>
 </head>
 <body>
-  <h1>🛒 Einkaufsliste mit PDF-Export</h1>
+  <h1>🛒 Einkaufsliste mit Druckfunktion</h1>
 
   <div class="section">
     <h2>➕ Neues Gericht</h2>
@@ -115,8 +114,8 @@
   </div>
 
   <div class="section">
-    <h2>📥 Einkaufsliste exportieren</h2>
-    <button onclick="einkaufslisteAlsPDF()">🧾 Einkaufsliste als PDF speichern</button>
+    <h2>🖨️ Einkaufsliste drucken</h2>
+    <button onclick="einkaufslisteDrucken()">🖨️ Einkaufsliste drucken</button>
   </div>
 
   <script>
@@ -297,16 +296,23 @@
       speichernUndAktualisieren();
     }
 
-    function einkaufslisteAlsPDF() {
-      const element = document.getElementById('einkaufsliste');
-      const opt = {
-        margin: 0.5,
-        filename: 'einkaufsliste.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
+    function einkaufslisteDrucken() {
+      const einkaufsliste = document.getElementById('einkaufsliste').innerHTML;
+      const druckWindow = window.open('', '_blank', 'width=800, height=600');
+      druckWindow.document.write(`
+        <html>
+          <head><title>Einkaufsliste</title></head>
+          <body>
+            <h1>🛒 Einkaufsliste</h1>
+            <div>${einkaufsliste}</div>
+            <script>
+              window.print();
+              window.onafterprint = function() { window.close(); };
+            </script>
+          </body>
+        </html>
+      `);
+      druckWindow.document.close();
     }
 
     // Initiales Anzeigen
