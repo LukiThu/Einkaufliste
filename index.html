@@ -93,7 +93,7 @@
     <h2>➕ Neues Gericht</h2>
     <input type="text" id="gerichtName" placeholder="Name des Gerichts">
     <textarea id="zutaten" placeholder="Zutaten mit Mengen und Kategorie – z. B. 2x Tomaten | Gemüse"></textarea>
-    <input type="text" id="gerichtKategorie" placeholder="Kategorie für dieses Gericht (z. B. Vegetarisch)">
+    <input type="text" id="gerichtKategorie" placeholder="Kategorie für dieses Gericht (z. B. Vegetarisch)">
     <button onclick="gerichtHinzufuegen()">Gericht speichern</button>
   </div>
 
@@ -105,8 +105,8 @@
   <div class="section">
     <h2>➕ Allgemeiner Artikel</h2>
     <input type="text" id="artikelName" placeholder="Artikelname">
-    <input type="text" id="artikelMenge" placeholder="Menge (z. B. 1 Flasche, 500g)">
-    <input type="text" id="artikelKategorie" placeholder="Kategorie für diesen Artikel (z. B. Haushaltswaren)">
+    <input type="text" id="artikelMenge" placeholder="Menge (z. B. 1 Flasche, 500g)">
+    <input type="text" id="artikelKategorie" placeholder="Kategorie für diesen Artikel (z. B. Haushaltswaren)">
     <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
     <ul id="artikelListe"></ul>
   </div>
@@ -133,6 +133,11 @@
       <input type="text" id="neueKategorie" placeholder="Neue Kategorie hinzufügen">
       <button onclick="kategorieHinzufuegen()">Kategorie hinzufügen</button>
     </div>
+  </div>
+
+  <div class="section">
+    <h2>🧹 Daten zurücksetzen</h2>
+    <button onclick="localStorageLoeschen()" style="background: #d33;">Alles löschen & zurücksetzen</button>
   </div>
 
   <script>
@@ -180,7 +185,6 @@
       const neueKategorie = document.getElementById('neueKategorie').value.trim();
       if (!neueKategorie) return;
 
-      // Kategorien für Gerichte oder Artikel hinzufügen
       if (!kategorien.gerichte.includes(neueKategorie)) {
         kategorien.gerichte.push(neueKategorie);
       }
@@ -258,7 +262,6 @@
       const checkedBoxes = document.querySelectorAll('#gerichteListe input:checked');
       const zutatenMap = {};
 
-      // Zutaten aus Gerichten
       checkedBoxes.forEach(cb => {
         const gericht = gerichte[cb.dataset.index];
         gericht.zutaten.forEach(zText => {
@@ -268,14 +271,11 @@
         });
       });
 
-      // Artikel
       artikel.forEach(a => {
-        const z = parseZutat(`${a.menge} ${a.name}`);
-        zutatenMap[z.kategorie] = zutatenMap[z.kategorie] || {};
-        zutatenMap[z.kategorie][z.name] = (zutatenMap[z.kategorie][z.name] || 0) + 1;
+        zutatenMap[a.kategorie] = zutatenMap[a.kategorie] || {};
+        zutatenMap[a.kategorie][`${a.menge} ${a.name}`] = 1;
       });
 
-      // Anzeige
       const container = document.getElementById('einkaufsliste');
       container.innerHTML = '';
       Object.entries(zutatenMap).forEach(([kategorie, zutaten]) => {
@@ -293,7 +293,33 @@
       });
     }
 
-    // Initialer Aufbau
+    function parseZutat(zutat) {
+      const [nameTeil, kategorie = 'Sonstiges'] = zutat.split('|').map(t => t.trim());
+      return { name: nameTeil, kategorie };
+    }
+
+    function gerichtEntfernen(index) {
+      if (confirm('Gericht wirklich löschen?')) {
+        gerichte.splice(index, 1);
+        speichernUndAktualisieren();
+      }
+    }
+
+    function artikelEntfernen(index) {
+      if (confirm('Artikel wirklich löschen?')) {
+        artikel.splice(index, 1);
+        speichernUndAktualisieren();
+      }
+    }
+
+    function localStorageLoeschen() {
+      if (confirm('Möchtest du wirklich alle Daten löschen?')) {
+        localStorage.clear();
+        alert('Alle Daten wurden gelöscht.');
+        location.reload();
+      }
+    }
+
     anzeigenGerichte();
     anzeigenArtikel();
     anzeigenKategorien();
