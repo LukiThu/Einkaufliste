@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Einkaufsliste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 2em;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li.checked {
+      text-decoration: line-through;
+      color: #888;
+    }
+    button {
+      margin-left: 1em;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 60%;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Meine Einkaufsliste</h1>
+
+  <input type="text" id="newItem" placeholder="Neuer Artikel...">
+  <button onclick="addItem()">➕ Hinzufügen</button>
+
+  <ul id="list"></ul>
+
+  <script>
+    // Artikel aus dem localStorage laden
+    let items = JSON.parse(localStorage.getItem('einkaufsliste')) || [];
+
+    function renderList() {
+      const ul = document.getElementById('list');
+      ul.innerHTML = '';
+      items.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = item.done ? 'checked' : '';
+        li.innerHTML = `
+          <span onclick="toggleItem(${index})">${item.text}</span>
+          <div>
+            <button onclick="deleteItem(${index})">🗑️</button>
+          </div>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function addItem() {
+      const input = document.getElementById('newItem');
+      const text = input.value.trim();
+      if (text !== '') {
+        items.push({ text, done: false });
+        input.value = '';
+        saveAndRender();
+      }
+    }
+
+    function toggleItem(index) {
+      items[index].done = !items[index].done;
+      saveAndRender();
+    }
+
+    function deleteItem(index) {
+      items.splice(index, 1);
+      saveAndRender();
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('einkaufsliste', JSON.stringify(items));
+      renderList();
+    }
+
+    renderList(); // Initialer Aufbau
+  </script>
+</body>
+</html>
