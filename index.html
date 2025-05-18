@@ -2,80 +2,156 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Gerichte & Einkaufsliste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Einkaufsliste mit Kategorien</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f5f5f5;
+      padding: 1em;
+      background: #f0f0f0;
+      max-width: 800px;
+      margin: auto;
     }
-    h2 {
-      margin-top: 2em;
+    h1, h2 {
+      text-align: center;
     }
     .section {
       margin-bottom: 2em;
+      background: white;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-    input, textarea {
-      padding: 8px;
-      margin-bottom: 10px;
+    input, textarea, button {
       width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
       font-size: 1em;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
     }
     button {
-      padding: 8px 12px;
-      font-size: 1em;
-      margin-top: 5px;
+      background: #2c7;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2a6;
     }
     ul {
       list-style: none;
       padding: 0;
     }
     li {
-      background: white;
-      border: 1px solid #ddd;
+      background: #fff;
+      margin: 5px 0;
       padding: 10px;
-      margin-bottom: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .small {
+      font-size: 0.9em;
+      color: #555;
+    }
+    .btn-delete {
+      background: #e44;
+      margin-left: 10px;
+      color: white;
+    }
+    .btn-delete:hover {
+      background: #c33;
+    }
+    .category-group {
+      margin-bottom: 1em;
+    }
+    .category-group h3 {
+      background: #eee;
+      padding: 0.5em;
+      border-left: 4px solid #2c7;
+      margin: 0 0 0.5em 0;
     }
   </style>
 </head>
 <body>
-  <h1>🍽️ Gerichte & Einkaufsliste</h1>
+  <h1>🛒 Einkaufsliste nach Kategorien</h1>
 
   <div class="section">
-    <h2>Neues Gericht erstellen</h2>
-    <input type="text" id="gerichtName" placeholder="Name des Gerichts (z.B. Chili con Carne)">
-    <textarea id="zutaten" placeholder="Zutaten – jeweils eine pro Zeile"></textarea>
-    <button onclick="gerichtHinzufuegen()">➕ Gericht hinzufügen</button>
+    <h2>➕ Neues Gericht</h2>
+    <input type="text" id="gerichtName" placeholder="Name des Gerichts">
+    <textarea id="zutaten" placeholder="Zutaten mit Mengen und Kategorie – z. B. 2x Tomaten | Gemüse"></textarea>
+    <button onclick="gerichtHinzufuegen()">Gericht speichern</button>
   </div>
 
   <div class="section">
-    <h2>Gerichte auswählen</h2>
+    <h2>✅ Gerichte auswählen</h2>
     <ul id="gerichteListe"></ul>
   </div>
 
   <div class="section">
-    <h2>🛒 Einkaufsliste</h2>
-    <ul id="einkaufsliste"></ul>
+    <h2>➕ Allgemeiner Artikel</h2>
+    <input type="text" id="artikelInput" placeholder="z. B. 1 Flasche Spülmittel | Haushalt">
+    <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
+    <ul id="artikelListe"></ul>
+  </div>
+
+  <div class="section">
+    <h2>🗂️ Einkaufsliste nach Kategorie</h2>
+    <div id="einkaufsliste"></div>
   </div>
 
   <script>
     let gerichte = JSON.parse(localStorage.getItem('gerichte')) || [];
+    let artikel = JSON.parse(localStorage.getItem('artikel')) || [];
+
+    function parseZutat(text) {
+      const [menge, kategorie] = text.split('|').map(t => t.trim());
+      return {
+        name: menge,
+        kategorie: kategorie || 'Sonstiges'
+      };
+    }
 
     function gerichtHinzufuegen() {
       const name = document.getElementById('gerichtName').value.trim();
       const zutatenText = document.getElementById('zutaten').value.trim();
       if (!name || !zutatenText) return;
 
-      const zutaten = zutatenText.split('\n').map(z => z.trim()).filter(z => z);
+      const zutaten = zutatenText
+        .split('\n')
+        .map(z => z.trim())
+        .filter(z => z);
+
       gerichte.push({ name, zutaten });
       document.getElementById('gerichtName').value = '';
       document.getElementById('zutaten').value = '';
       speichernUndAktualisieren();
     }
 
+    function artikelHinzufuegen() {
+      const input = document.getElementById('artikelInput');
+      const text = input.value.trim();
+      if (!text) return;
+      artikel.push(text);
+      input.value = '';
+      speichernUndAktualisieren();
+    }
+
+    function artikelEntfernen(index) {
+      artikel.splice(index, 1);
+      speichernUndAktualisieren();
+    }
+
     function speichernUndAktualisieren() {
       localStorage.setItem('gerichte', JSON.stringify(gerichte));
+      localStorage.setItem('artikel', JSON.stringify(artikel));
       anzeigenGerichte();
+      anzeigenArtikel();
       aktualisiereEinkaufsliste();
     }
 
@@ -85,11 +161,24 @@
       gerichte.forEach((gericht, index) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <label>
+          <label style="width: 100%;">
             <input type="checkbox" onchange="aktualisiereEinkaufsliste()" data-index="${index}">
             <strong>${gericht.name}</strong><br>
-            <small>${gericht.zutaten.join(', ')}</small>
+            <span class="small">${gericht.zutaten.join(', ')}</span>
           </label>
+        `;
+        liste.appendChild(li);
+      });
+    }
+
+    function anzeigenArtikel() {
+      const liste = document.getElementById('artikelListe');
+      liste.innerHTML = '';
+      artikel.forEach((eintrag, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          ${eintrag}
+          <button class="btn-delete" onclick="artikelEntfernen(${index})">🗑️</button>
         `;
         liste.appendChild(li);
       });
@@ -99,24 +188,44 @@
       const checkedBoxes = document.querySelectorAll('#gerichteListe input:checked');
       const zutatenMap = {};
 
+      // Zutaten aus Gerichten
       checkedBoxes.forEach(cb => {
         const gericht = gerichte[cb.dataset.index];
-        gericht.zutaten.forEach(zutat => {
-          zutatenMap[zutat] = (zutatenMap[zutat] || 0) + 1;
+        gericht.zutaten.forEach(zText => {
+          const z = parseZutat(zText);
+          zutatenMap[z.kategorie] = zutatenMap[z.kategorie] || {};
+          zutatenMap[z.kategorie][z.name] = (zutatenMap[z.kategorie][z.name] || 0) + 1;
         });
       });
 
-      const liste = document.getElementById('einkaufsliste');
-      liste.innerHTML = '';
-      Object.entries(zutatenMap).forEach(([zutat, anzahl]) => {
-        const li = document.createElement('li');
-        li.textContent = anzahl > 1 ? `${anzahl}x ${zutat}` : zutat;
-        liste.appendChild(li);
+      // Artikel
+      artikel.forEach(aText => {
+        const z = parseZutat(aText);
+        zutatenMap[z.kategorie] = zutatenMap[z.kategorie] || {};
+        zutatenMap[z.kategorie][z.name] = (zutatenMap[z.kategorie][z.name] || 0) + 1;
+      });
+
+      // Anzeige
+      const container = document.getElementById('einkaufsliste');
+      container.innerHTML = '';
+      Object.entries(zutatenMap).forEach(([kategorie, zutaten]) => {
+        const section = document.createElement('div');
+        section.className = 'category-group';
+        section.innerHTML = `<h3>${kategorie}</h3>`;
+        const ul = document.createElement('ul');
+        Object.entries(zutaten).forEach(([name, anzahl]) => {
+          const li = document.createElement('li');
+          li.textContent = anzahl > 1 ? `${anzahl}x ${name}` : name;
+          ul.appendChild(li);
+        });
+        section.appendChild(ul);
+        container.appendChild(section);
       });
     }
 
-    // Initiale Anzeige
+    // Initialer Aufbau
     anzeigenGerichte();
+    anzeigenArtikel();
     aktualisiereEinkaufsliste();
   </script>
 </body>
