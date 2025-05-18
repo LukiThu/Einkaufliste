@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Einkaufsliste mit Kategorien</title>
+  <title>Einkaufsliste mit Kategorien und Mengenangabe</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,7 +22,7 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-    input, textarea, button {
+    input, textarea, button, select {
       width: 100%;
       box-sizing: border-box;
       padding: 10px;
@@ -54,6 +54,9 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .small {
       font-size: 0.9em;
@@ -61,8 +64,10 @@
     }
     .btn-delete {
       background: #e44;
-      margin-left: 10px;
       color: white;
+      margin-left: 10px;
+      border-radius: 4px;
+      cursor: pointer;
     }
     .btn-delete:hover {
       background: #c33;
@@ -95,7 +100,20 @@
 
   <div class="section">
     <h2>➕ Allgemeiner Artikel</h2>
-    <input type="text" id="artikelInput" placeholder="z. B. 1 Flasche Spülmittel | Haushalt">
+    <select id="artikelSelect">
+      <option value="">Bitte wählen...</option>
+      <option value="1 Flasche Spülmittel | Haushalt">1 Flasche Spülmittel | Haushalt</option>
+      <option value="2 Flaschen Spülmittel | Haushalt">2 Flaschen Spülmittel | Haushalt</option>
+      <option value="3 Flaschen Spülmittel | Haushalt">3 Flaschen Spülmittel | Haushalt</option>
+      <option value="2 Rollen Toilettenpapier | Haushalt">2 Rollen Toilettenpapier | Haushalt</option>
+      <option value="1 Packung Müllbeutel | Haushalt">1 Packung Müllbeutel | Haushalt</option>
+      <option value="500g Reis | Lebensmittel">500g Reis | Lebensmittel</option>
+      <option value="1kg Reis | Lebensmittel">1kg Reis | Lebensmittel</option>
+      <option value="1 Packung Salz | Lebensmittel">1 Packung Salz | Lebensmittel</option>
+      <option value="1 Liter Milch | Milchprodukte">1 Liter Milch | Milchprodukte</option>
+      <option value="2 Liter Milch | Milchprodukte">2 Liter Milch | Milchprodukte</option>
+      <option value="1 Packung Eier | Milchprodukte">1 Packung Eier | Milchprodukte</option>
+    </select>
     <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
     <ul id="artikelListe"></ul>
   </div>
@@ -134,16 +152,22 @@
     }
 
     function artikelHinzufuegen() {
-      const input = document.getElementById('artikelInput');
-      const text = input.value.trim();
-      if (!text) return;
-      artikel.push(text);
-      input.value = '';
+      const select = document.getElementById('artikelSelect');
+      const selectedValue = select.value.trim();
+      if (!selectedValue) return;
+
+      artikel.push(selectedValue);
+      select.value = '';
       speichernUndAktualisieren();
     }
 
     function artikelEntfernen(index) {
       artikel.splice(index, 1);
+      speichernUndAktualisieren();
+    }
+
+    function gerichtEntfernen(index) {
+      gerichte.splice(index, 1);
       speichernUndAktualisieren();
     }
 
@@ -166,6 +190,7 @@
             <strong>${gericht.name}</strong><br>
             <span class="small">${gericht.zutaten.join(', ')}</span>
           </label>
+          <button class="btn-delete" onclick="gerichtEntfernen(${index})">🗑️</button>
         `;
         liste.appendChild(li);
       });
