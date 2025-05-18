@@ -3,111 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Einkaufsliste mit Kategorien</title>
+  <title>Einkaufsliste mit getrennten Kategorien</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 1em;
-      background: #f0f0f0;
+      background: #f8f8f8;
+      padding: 1rem;
       max-width: 800px;
       margin: auto;
+    }
+    .section {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
     }
     h1, h2 {
       text-align: center;
     }
-    .section {
-      margin-bottom: 2em;
-      background: white;
-      padding: 1em;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    input, textarea, button, select {
+    input, select, button, textarea {
       width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
+      padding: 8px;
       margin-top: 5px;
       margin-bottom: 10px;
       font-size: 1em;
     }
-    textarea {
-      height: 100px;
-      resize: vertical;
-    }
     button {
-      background: #2c7;
+      background: #28a745;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
     }
     button:hover {
-      background: #2a6;
+      background: #218838;
     }
-    ul {
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      margin-left: 10px;
+      border-radius: 4px;
+    }
+    .btn-delete:hover {
+      background: #c82333;
+    }
+    .category-section ul {
       list-style: none;
       padding: 0;
     }
-    li {
-      background: #fff;
-      margin: 5px 0;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .small {
-      font-size: 0.9em;
-      color: #555;
-    }
-    .btn-delete {
-      background: #e44;
-      color: white;
-      margin-left: 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-delete:hover {
-      background: #c33;
-    }
-    .category-group {
-      margin-bottom: 1em;
-    }
-    .category-group h3 {
-      background: #eee;
-      padding: 0.5em;
-      border-left: 4px solid #2c7;
-      margin: 0 0 0.5em 0;
-    }
-    .category-list {
-      margin-top: 10px;
+    .category-section li {
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>🛒 Einkaufsliste mit Kategorien</h1>
+  <h1>🛒 Einkaufsliste mit getrennten Kategorien</h1>
 
   <div class="section">
     <h2>➕ Neues Gericht</h2>
     <input type="text" id="gerichtName" placeholder="Name des Gerichts">
-    <textarea id="zutaten" placeholder="Zutaten mit Mengen und Kategorie – z. B. 2x Tomaten | Gemüse"></textarea>
-    <input type="text" id="gerichtKategorie" placeholder="Kategorie für dieses Gericht (z. B. Vegetarisch)">
+    <textarea id="zutaten" placeholder="Zutaten (z. B. 2x Tomaten | Gemüse)"></textarea>
+    <select id="gerichtKategorieDropdown">
+      <option value="">Kategorie auswählen</option>
+    </select>
+    <input type="text" id="gerichtKategorie" placeholder="Neue Kategorie für Gericht (optional)">
     <button onclick="gerichtHinzufuegen()">Gericht speichern</button>
   </div>
 
+  <div class="section">
+    <h2>➕ Allgemeiner Artikel</h2>
+    <input type="text" id="artikelName" placeholder="Artikelname">
+    <input type="text" id="artikelMenge" placeholder="Menge (z. B. 1kg, 2 Flaschen)">
+    <select id="artikelKategorieDropdown">
+      <option value="">Kategorie auswählen</option>
+    </select>
+    <input type="text" id="artikelKategorie" placeholder="Neue Kategorie für Artikel (optional)">
+    <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
+  </div>
   <div class="section">
     <h2>✅ Gerichte auswählen</h2>
     <ul id="gerichteListe"></ul>
   </div>
 
   <div class="section">
-    <h2>➕ Allgemeiner Artikel</h2>
-    <input type="text" id="artikelName" placeholder="Artikelname">
-    <input type="text" id="artikelMenge" placeholder="Menge (z. B. 1 Flasche, 500g)">
-    <input type="text" id="artikelKategorie" placeholder="Kategorie für diesen Artikel (z. B. Haushaltswaren)">
-    <button onclick="artikelHinzufuegen()">Artikel hinzufügen</button>
+    <h2>📋 Allgemeine Artikel</h2>
     <ul id="artikelListe"></ul>
   </div>
 
@@ -116,28 +97,19 @@
     <div id="einkaufsliste"></div>
   </div>
 
-  <div class="section">
+  <div class="section category-section">
     <h2>🛠️ Kategorien verwalten</h2>
-    <div>
-      <h3>Verfügbare Kategorien</h3>
-      <div id="kategorienListe">
-        <div id="gerichtKategorien">
-          <h4>Gerichte Kategorien</h4>
-          <ul class="category-list" id="gerichtsKategorieListe"></ul>
-        </div>
-        <div id="artikelKategorien">
-          <h4>Artikel Kategorien</h4>
-          <ul class="category-list" id="artikelKategorieListe"></ul>
-        </div>
-      </div>
-      <input type="text" id="neueKategorie" placeholder="Neue Kategorie hinzufügen">
-      <button onclick="kategorieHinzufuegen()">Kategorie hinzufügen</button>
-    </div>
+
+    <h3>Gerichte-Kategorien</h3>
+    <ul id="gerichtKategorienListe"></ul>
+
+    <h3>Artikel-Kategorien</h3>
+    <ul id="artikelKategorienListe"></ul>
   </div>
 
   <div class="section">
     <h2>🧹 Daten zurücksetzen</h2>
-    <button onclick="localStorageLoeschen()" style="background: #d33;">Alles löschen & zurücksetzen</button>
+    <button onclick="localStorageLoeschen()" style="background: #dc3545;">Alles löschen & zurücksetzen</button>
   </div>
 
   <script>
@@ -150,50 +122,44 @@
 
     function gerichtHinzufuegen() {
       const name = document.getElementById('gerichtName').value.trim();
-      const zutatenText = document.getElementById('zutaten').value.trim();
-      const kategorie = document.getElementById('gerichtKategorie').value.trim();
+      const zutaten = document.getElementById('zutaten').value.trim().split('\n').filter(Boolean);
+      const neueKategorie = document.getElementById('gerichtKategorie').value.trim();
+      const dropdownKategorie = document.getElementById('gerichtKategorieDropdown').value;
+      const kategorie = neueKategorie || dropdownKategorie;
 
-      if (!name || !zutatenText || !kategorie) return;
+      if (!name || !zutaten.length || !kategorie) return;
 
-      const zutaten = zutatenText
-        .split('\n')
-        .map(z => z.trim())
-        .filter(z => z);
+      if (neueKategorie && !kategorien.gerichte.includes(neueKategorie)) {
+        kategorien.gerichte.push(neueKategorie);
+      }
 
       gerichte.push({ name, zutaten, kategorie });
+      speichernUndAktualisieren();
+
       document.getElementById('gerichtName').value = '';
       document.getElementById('zutaten').value = '';
       document.getElementById('gerichtKategorie').value = '';
-      speichernUndAktualisieren();
     }
 
     function artikelHinzufuegen() {
       const name = document.getElementById('artikelName').value.trim();
       const menge = document.getElementById('artikelMenge').value.trim();
-      const kategorie = document.getElementById('artikelKategorie').value.trim();
+      const neueKategorie = document.getElementById('artikelKategorie').value.trim();
+      const dropdownKategorie = document.getElementById('artikelKategorieDropdown').value;
+      const kategorie = neueKategorie || dropdownKategorie;
 
       if (!name || !menge || !kategorie) return;
 
-      artikel.push({ name, menge, kategorie });
-      document.getElementById('artikelName').value = '';
-      document.getElementById('artikelMenge').value = '';
-      document.getElementById('artikelKategorie').value = '';
-      speichernUndAktualisieren();
-    }
-
-    function kategorieHinzufuegen() {
-      const neueKategorie = document.getElementById('neueKategorie').value.trim();
-      if (!neueKategorie) return;
-
-      if (!kategorien.gerichte.includes(neueKategorie)) {
-        kategorien.gerichte.push(neueKategorie);
-      }
-      if (!kategorien.artikel.includes(neueKategorie)) {
+      if (neueKategorie && !kategorien.artikel.includes(neueKategorie)) {
         kategorien.artikel.push(neueKategorie);
       }
 
-      document.getElementById('neueKategorie').value = '';
+      artikel.push({ name, menge, kategorie });
       speichernUndAktualisieren();
+
+      document.getElementById('artikelName').value = '';
+      document.getElementById('artikelMenge').value = '';
+      document.getElementById('artikelKategorie').value = '';
     }
 
     function speichernUndAktualisieren() {
@@ -202,23 +168,23 @@
       localStorage.setItem('kategorien', JSON.stringify(kategorien));
       anzeigenGerichte();
       anzeigenArtikel();
-      aktualisiereEinkaufsliste();
       anzeigenKategorien();
+      aktualisiereEinkaufsliste();
     }
 
     function anzeigenGerichte() {
       const liste = document.getElementById('gerichteListe');
       liste.innerHTML = '';
-      gerichte.forEach((gericht, index) => {
+      gerichte.forEach((gericht, i) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <label style="width: 100%;">
-            <input type="checkbox" onchange="aktualisiereEinkaufsliste()" data-index="${index}">
+          <label>
+            <input type="checkbox" onchange="aktualisiereEinkaufsliste()" data-index="${i}">
             <strong>${gericht.name}</strong><br>
-            <span class="small">${gericht.zutaten.join(', ')}</span><br>
-            <span class="small">Kategorie: ${gericht.kategorie}</span>
+            <small>${gericht.zutaten.join(', ')}</small><br>
+            <em>Kategorie: ${gericht.kategorie}</em>
           </label>
-          <button class="btn-delete" onclick="gerichtEntfernen(${index})">🗑️</button>
+          <button class="btn-delete" onclick="gerichtEntfernen(${i})">🗑️</button>
         `;
         liste.appendChild(li);
       });
@@ -227,47 +193,27 @@
     function anzeigenArtikel() {
       const liste = document.getElementById('artikelListe');
       liste.innerHTML = '';
-      artikel.forEach((eintrag, index) => {
+      artikel.forEach((a, i) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          ${eintrag.menge} ${eintrag.name}<br>
-          <span class="small">Kategorie: ${eintrag.kategorie}</span>
-          <button class="btn-delete" onclick="artikelEntfernen(${index})">🗑️</button>
+          ${a.menge} ${a.name}<br>
+          <em>Kategorie: ${a.kategorie}</em>
+          <button class="btn-delete" onclick="artikelEntfernen(${i})">🗑️</button>
         `;
         liste.appendChild(li);
       });
     }
 
-    function anzeigenKategorien() {
-      const gerichtKategorienListe = document.getElementById('gerichtsKategorieListe');
-      const artikelKategorienListe = document.getElementById('artikelKategorieListe');
-
-      gerichtKategorienListe.innerHTML = '';
-      artikelKategorienListe.innerHTML = '';
-
-      kategorien.gerichte.forEach(kategorie => {
-        const li = document.createElement('li');
-        li.textContent = kategorie;
-        gerichtKategorienListe.appendChild(li);
-      });
-
-      kategorien.artikel.forEach(kategorie => {
-        const li = document.createElement('li');
-        li.textContent = kategorie;
-        artikelKategorienListe.appendChild(li);
-      });
-    }
-
     function aktualisiereEinkaufsliste() {
-      const checkedBoxes = document.querySelectorAll('#gerichteListe input:checked');
       const zutatenMap = {};
+      const checked = document.querySelectorAll('#gerichteListe input:checked');
 
-      checkedBoxes.forEach(cb => {
+      checked.forEach(cb => {
         const gericht = gerichte[cb.dataset.index];
-        gericht.zutaten.forEach(zText => {
-          const z = parseZutat(zText);
-          zutatenMap[z.kategorie] = zutatenMap[z.kategorie] || {};
-          zutatenMap[z.kategorie][z.name] = (zutatenMap[z.kategorie][z.name] || 0) + 1;
+        gericht.zutaten.forEach(z => {
+          const [name, kat = 'Sonstiges'] = z.split('|').map(s => s.trim());
+          zutatenMap[kat] = zutatenMap[kat] || {};
+          zutatenMap[kat][name] = (zutatenMap[kat][name] || 0) + 1;
         });
       });
 
@@ -278,14 +224,13 @@
 
       const container = document.getElementById('einkaufsliste');
       container.innerHTML = '';
-      Object.entries(zutatenMap).forEach(([kategorie, zutaten]) => {
+      Object.entries(zutatenMap).forEach(([kategorie, items]) => {
         const section = document.createElement('div');
-        section.className = 'category-group';
         section.innerHTML = `<h3>${kategorie}</h3>`;
         const ul = document.createElement('ul');
-        Object.entries(zutaten).forEach(([name, anzahl]) => {
+        Object.entries(items).forEach(([name, count]) => {
           const li = document.createElement('li');
-          li.textContent = anzahl > 1 ? `${anzahl}x ${name}` : name;
+          li.textContent = count > 1 ? `${count}x ${name}` : name;
           ul.appendChild(li);
         });
         section.appendChild(ul);
@@ -293,9 +238,38 @@
       });
     }
 
-    function parseZutat(zutat) {
-      const [nameTeil, kategorie = 'Sonstiges'] = zutat.split('|').map(t => t.trim());
-      return { name: nameTeil, kategorie };
+    function anzeigenKategorien() {
+      const gerichtUl = document.getElementById('gerichtKategorienListe');
+      const artikelUl = document.getElementById('artikelKategorienListe');
+      const gerichtSelect = document.getElementById('gerichtKategorieDropdown');
+      const artikelSelect = document.getElementById('artikelKategorieDropdown');
+
+      gerichtUl.innerHTML = '';
+      artikelUl.innerHTML = '';
+      gerichtSelect.innerHTML = '<option value="">Kategorie auswählen</option>';
+      artikelSelect.innerHTML = '<option value="">Kategorie auswählen</option>';
+
+      kategorien.gerichte.forEach(kat => {
+        const li = document.createElement('li');
+        li.textContent = kat;
+        gerichtUl.appendChild(li);
+
+        const option = document.createElement('option');
+        option.value = kat;
+        option.textContent = kat;
+        gerichtSelect.appendChild(option);
+      });
+
+      kategorien.artikel.forEach(kat => {
+        const li = document.createElement('li');
+        li.textContent = kat;
+        artikelUl.appendChild(li);
+
+        const option = document.createElement('option');
+        option.value = kat;
+        option.textContent = kat;
+        artikelSelect.appendChild(option);
+      });
     }
 
     function gerichtEntfernen(index) {
@@ -315,11 +289,11 @@
     function localStorageLoeschen() {
       if (confirm('Möchtest du wirklich alle Daten löschen?')) {
         localStorage.clear();
-        alert('Alle Daten wurden gelöscht.');
         location.reload();
       }
     }
 
+    // Initialisierung
     anzeigenGerichte();
     anzeigenArtikel();
     anzeigenKategorien();
